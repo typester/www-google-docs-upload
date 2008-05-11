@@ -1,17 +1,67 @@
 package WWW::Google::Docs::Upload;
-use strict;
-use warnings;
+use Moose;
+
+use WWW::Mechanize;
 
 our $VERSION = '0.01';
 
+has email  => ( is => 'rw', required => 1 );
+has passwd => ( is => 'rw', required => 1 );
+
+has mech => (
+    is  => 'rw',
+    isa => 'WWW::Mechanize',
+    default => sub {
+        my $mech = WWW::Mechanize->new( stack_depth => 1 );
+        $mech->env_proxy;
+        $mech->agent_alias('Windows IE 6');
+        $mech;
+    },
+);
+
+sub upload {
+    my ($self, $file, $option) = @_;
+
+    confess q{required filename to upload} unless $file;
+    confess qq{no such file "$file"} unless -e $file && -f _;
+
+    my $mech = $self->mech;
+    $mech->get('http://docs.google.com/DocAction?action=updoc&hl=en');
+
+    if ($mech->res->base =~ /ServiceLogin/) {
+        $mech->submit_form(
+            fields => {
+                Email  => $self->email,
+                Passwd => $self->passwd,
+            },
+        );
+        $mech->follow_link( tag => 'meta' );
+        confess 'login failed' unless $mech->res->base->host eq 'docs.google.com';
+    }
+
+    $mech->submit_form(
+        fields => {
+            uploadedFile => $file,
+            $option->{name} ? (DocName => $option->{name}) : (),
+        },
+    );
+
+    $mech->res;
+}
+
 =head1 NAME
 
-WWW::Google::Docs::Upload - Module abstract (<= 44 characters) goes here
+WWW::Google::Docs::Upload - Upload documents to Google Docs
 
 =head1 SYNOPSIS
 
-  use WWW::Google::Docs::Upload;
-  blah blah blah
+    use WWW::Google::Docs::Upload;
+    
+    my $docs = WWW::Google::Docs::Upload->new(
+        email  => 'your email',
+        passwd => 'your password'
+    );
+    $docs->upload('/path/to/yourfile.doc');
 
 =head1 DESCRIPTION
 
@@ -20,6 +70,10 @@ It looks like the author of the extension was negligent enough
 to leave the stub unedited.
 
 Blah blah blah.
+
+=head1 METHODS
+
+=head2 upload($filename, \%option)
 
 =head1 AUTHOR
 
