@@ -3,7 +3,7 @@ use Moose;
 
 use WWW::Mechanize;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 has email  => ( is => 'rw', required => 1 );
 has passwd => ( is => 'rw', required => 1 );
