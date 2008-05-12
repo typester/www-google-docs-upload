@@ -65,15 +65,23 @@ WWW::Google::Docs::Upload - Upload documents to Google Docs
 
 =head1 DESCRIPTION
 
-Stub documentation for this module was created by ExtUtils::ModuleMaker.
-It looks like the author of the extension was negligent enough
-to leave the stub unedited.
-
-Blah blah blah.
+This module helps you to upload your local document files to Google Docs.
 
 =head1 METHODS
 
 =head2 upload($filename, \%option)
+
+Upload document file (named $filename) to Google Docs.
+
+\%option is hashref and allowed key is:
+
+=over 4
+
+=item name
+
+Filename what you want to call (if different than the filename)
+
+=back
 
 =head1 AUTHOR
 
