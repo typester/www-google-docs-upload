@@ -35,13 +35,27 @@ sub prompt {
 sub main {
     GetOptions(
         \my %option,
-        qw/help name/
+        qw/help name=s/
     );
     pod2usage(0) if $option{help};
 
     setup_config();
 
-    my $filename = $ARGV[0];
+    my ($filename, $stdin, $fh);
+    $stdin = do { local $/; <STDIN> };
+
+    if ($stdin) {
+        my ($suffix) = ($option{name} || '') =~ /(\.?[^.]+)$/;
+        $fh = File::Temp->new( $suffix ? (SUFFIX => $suffix) : () );
+        print $fh $stdin;
+        $fh->close;
+
+        $filename = $fh->filename;
+    }
+    else {
+        $filename = $ARGV[0];
+    }
+
     pod2usage(1) unless $filename;
 
     my $gdoc = WWW::Google::Docs::Upload->new(
@@ -84,6 +98,3 @@ gdoc-upload.pl - Upload documents to Google Docs.
 Daisuke Murase <typester@cpan.org>
 
 =cut
-
-
-
