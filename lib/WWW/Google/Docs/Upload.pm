@@ -15,6 +15,7 @@ has mech => (
         my $mech = WWW::Mechanize->new( stack_depth => 1 );
         $mech->env_proxy;
         $mech->agent_alias('Windows IE 6');
+        $mech->timeout(10);
         $mech;
     },
 );
