@@ -41,19 +41,16 @@ sub main {
 
     setup_config();
 
-    my ($filename, $stdin, $fh);
-    $stdin = do { local $/; <STDIN> };
+    my ($filename, $fh);
+    $filename = $ARGV[0];
 
-    if ($stdin) {
+    if (!$filename and my $stdin = do { local $/; <STDIN> }) {
         my ($suffix) = ($option{name} || '') =~ /(\.?[^.]+)$/;
         $fh = File::Temp->new( $suffix ? (SUFFIX => $suffix) : () );
         print $fh $stdin;
         $fh->close;
 
         $filename = $fh->filename;
-    }
-    else {
-        $filename = $ARGV[0];
     }
 
     pod2usage(1) unless $filename;
